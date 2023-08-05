@@ -1,0 +1,216 @@
+﻿*{
+    /* border: 0px;
+    padding: 0px;
+    margin: 0px; */
+}
+QMainWindow{
+    background:#eaf4f4
+}
+
+QComboBox {
+    background-color: #fefffe;
+    border: 0px solid gray;
+    border-radius: 3px;
+    padding: 1px 2px 1px 2px;  
+    min-width: 9em; 
+    min-height: 1.5em;  
+    selection-background-color: #111;
+}
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 0px; 
+    border-bottom-right-radius: 0px;
+    border: 0px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/static/image/down-arrow.svg);
+    width: 15px;
+}
+
+QComboBox QAbstractItemView {
+    outline: 0px solid gray; 
+    border: 0px solid #333;
+    color: #6b9080;
+    border-radius: 0px;
+    background-color: #cce3de;   
+    selection-background-color: #cce3de;   
+}
+
+QComboBox QAbstractItemView::item {
+    height: 25px;  
+}
+
+QComboBox QAbstractItemView::item:hover {
+    color: #FFFFFF;
+    background-color: #a4c3b2;
+}
+
+QComboBox QAbstractItemView::item:selected {
+    color: #FFFFFF;
+    background-color: #a4c3b2;
+    border: 0px solid;
+}
+
+#connect_btn{
+    background:#cce3de;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+    color:#6b9080
+}
+
+#connect_btn:hover{
+    background:#a4c3b2;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+    color:#6b9080
+}
+
+#connect_btn:pressed{
+    background:#6b9080;
+    border: 2px solid #a4c3b2;
+    color:#cce3de
+}
+QListWidget{
+    background:#eaf4f4;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+QListWidget::item {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+QListWidgetItem{
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+QListWidget::item:hover {
+    background:#333;
+    border: 0px solid gray;
+    /* border-top: none;
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+    color:#6b9080 */
+}
+QListWidget::item:pressed{
+    background:#6b9080;
+    border: 2px solid #a4c3b2;
+    color:#cce3de
+}
+
+QListWidget::item:selected {
+    color: #FFFFFF;
+    background-color: #a4c3b2;
+    border: 0px solid;
+}
+ListItem{
+    border: 0px solid #888;
+    padding: 0px;
+    margin: 0px;
+}
+ListItem:hover{
+    /* background:#a4c3b2;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+    color:#6b9080 */
+}
+ListItem QPushButton{
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background:transparent;
+}
+ListItem QWidget{
+    border: 0px solid #888;
+    margin: 0px;
+    padding: 0px;
+}
+ListItem QPushButton#pushButton:hover{
+    color:#d66d16
+}
+
+ListItem QWidget#content_widget{
+    border: 0px;
+    background:#eaf4f4;
+    
+}
+ListItem QWidget#title_widget{
+    border: 0px;
+    margin:0px;
+    padding:0px;
+    background:#cce3de;
+}
+ListItem QWidget#title_widget:hover{
+    background:#a4c3b2;
+    border: 0px;
+    color:#6b9080
+}
+QScrollBar:vertical
+{
+    width:8px;
+    background:rgba(0,0,0,0%);
+    padding-top:9px;
+    padding-bottom:9px;
+}
+QScrollBar::handle:vertical
+{
+    width:8px;
+    background:rgba(0,0,0,25%);
+    border-radius:4px;
+    min-height:20;
+}
+QScrollBar::handle:vertical:hover
+{
+    width:8px;
+    background:rgba(0,0,0,50%);
+    border-radius:4px;
+    min-height:20;
+}
+QScrollBar::add-line:vertical
+{
+    height:9px;
+    width:8px;
+    border-image:url(:/images/a/3.png);
+    subcontrol-position:bottom;
+}
+QScrollBar::sub-line:vertical
+{
+    height:9px;width:8px;
+    border-image:url(:/images/a/1.png);
+    subcontrol-position:top;
+}
+QScrollBar::add-line:vertical:hover 
+{
+    height:9px;width:8px;
+    border-image:url(:/images/a/4.png);
+    subcontrol-position:bottom;
+}
+QScrollBar::sub-line:vertical:hover
+{
+    height:9px;width:8px;
+    border-image:url(:/images/a/2.png);
+    subcontrol-position:top;
+}
+QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical
+{
+    background:rgba(0,0,0,10%);
+    border-radius:4px;
+}

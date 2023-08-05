@@ -1,34 +1,94 @@
 ﻿#include "bunnyhole.h"
-#include <QNetworkInterface>
 #include "bunnyholeprotocolbuilder.h"
-BunnyHole::BunnyHole(QObject *parent) : QObject(parent)
+#include <QHostInfo>
+BunnyHole::BunnyHole(Configuration c, QObject *parent) :QObject(parent), config(c)
 {
 
+    qRegisterMetaType<BunnyHoleProtocol>("BunnyHoleProtocol");
     udp_socket = new QUdpSocket(this);
-    auto res = udp_socket->bind(QHostAddress::AnyIPv4,group_address.port(),QUdpSocket::ShareAddress);
-    if(!res){
-        return;
-    }
-    res = udp_socket->joinMulticastGroup(QHostAddress(group_address.host()));
-    if(!res){
-        return;
-    }
-    connect(udp_socket,&QUdpSocket::readyRead,this,&BunnyHole::read_message);
 }
 
 bool BunnyHole::client_online()
 {
-
+    auto v4_list = get_local_hostinfo();
+    if(v4_list.isEmpty()){
+        return false;
+    }
     auto protocol = BunnyHoleProtocolBuilder::builder()
-            .host(group_address.toString())
-            .man("ssdp:discocver")
-            .mx(1)
+            .host(local_host.toString())
+            .search()
+            .user_agent()
+            .hostname(QHostInfo::localHostName())
+            .id(config.system_id)
             .build();
-    QByteArray data = protocol.message_body.toUtf8();
-    auto res = udp_socket->write(data,data.length());
+    QByteArray data = protocol.data();
+    if(udp_socket->isOpen()){
+
+    }
+    auto res = udp_socket->writeDatagram(data,QHostAddress(group_address.host()),group_address.port());
     if(res != data.length()){
         return false;
     }
+    return true;
+}
+
+bool BunnyHole::client_alive()
+{
+    auto protocol = BunnyHoleProtocolBuilder::builder()
+            .host(local_host.toString())
+            .alive()
+            .hostname(QHostInfo::localHostName())
+            .user_agent()
+            .build();
+    QByteArray data = protocol.data();
+    if(udp_socket->isOpen()){
+
+    }
+    auto res = udp_socket->writeDatagram(data,QHostAddress(group_address.host()),group_address.port());
+    if(res != data.length()){
+        return false;
+    }
+    return true;
+}
+
+QList<QNetworkInterface> BunnyHole::get_local_hostinfo()
+{
+    QList<QNetworkInterface> v4_address_set;
+    auto face_list = QNetworkInterface::allInterfaces();
+    for(auto& i:face_list){
+        for(auto& t:i.addressEntries()){
+            if(t.ip().protocol() == QAbstractSocket::NetworkLayerProtocol::IPv4Protocol){
+                v4_address_set.append(i);
+            }
+        }
+    }
+    return v4_address_set;
+}
+
+bool BunnyHole::start(QString interface_name)
+{
+    auto res = udp_socket->bind(QHostAddress::AnyIPv4,group_address.port(),QUdpSocket::ShareAddress);
+    if(!res){
+        return false;
+    }
+    local_interface = QNetworkInterface().interfaceFromName(interface_name);
+
+    for(auto& t:local_interface.addressEntries()){
+        if(t.ip().protocol() == QAbstractSocket::NetworkLayerProtocol::IPv4Protocol){
+            local_host = t.ip();
+        }
+    }
+
+    udp_socket->setMulticastInterface(local_interface);
+    res = udp_socket->joinMulticastGroup(QHostAddress(group_address.host()));
+    if(!res){
+        return false;
+    }
+    connect(udp_socket,&QUdpSocket::readyRead,this,&BunnyHole::read_message);
+    client_online();
+    connect(&notify_timer,&QTimer::timeout,this,&BunnyHole::client_alive);
+    notify_timer.setInterval(3000);
+    notify_timer.start();
     return true;
 }
 
@@ -37,8 +97,44 @@ void BunnyHole::read_message()
     while (udp_socket->hasPendingDatagrams()) {
         QByteArray reply;
         reply.resize(udp_socket->pendingDatagramSize());
-        udp_socket->readDatagram(reply.data(), reply.size());
-        qDebug() << reply.data();
+        QHostAddress add;
+        udp_socket->readDatagram(reply.data(), reply.size(),&add);
+        BunnyHoleProtocol protocol;
+        protocol.host = add.toString();
+        if(protocol.parse(reply)){
+            qDebug().noquote() << protocol.data();
+            if(protocol.host == local_host.toString()){
+                // ignore
+            }else{
+                // process message
+                message_process(protocol);
+            }
+        }
     }
 
+}
+
+void BunnyHole::message_process(BunnyHoleProtocol& bhp)
+{
+    if (bhp.current_operate == BunnyHoleProtocol::Operate::WHEREYOUARE) {
+		auto protocol = BunnyHoleProtocolBuilder::builder()
+				.host(local_host.toString())
+				.alive()
+				.user_agent()
+                .hostname(QHostInfo::localHostName())
+				.build();
+		QByteArray data = protocol.data();
+        
+		auto res = udp_socket->writeDatagram(data,QHostAddress(group_address.host()),group_address.port());
+        if (res != data.length()) {
+			return;
+		}
+        emit new_client_online(bhp);
+    }else if (bhp.current_operate == BunnyHoleProtocol::Operate::BYEBYE) {
+        emit clinet_offline(bhp);
+    }else if (bhp.current_operate == BunnyHoleProtocol::Operate::IMHERE) {
+        emit new_client_online(bhp);
+    }else if (bhp.current_operate == BunnyHoleProtocol::Operate::UNKNONW) {
+
+    }
 }

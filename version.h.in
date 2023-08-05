@@ -1,0 +1,23 @@
+/*
+ * @Author: Image image@by.cx
+ * @Date: 2023-08-01 22:07:26
+ * @LastEditors: Image image@by.cx
+ * @LastEditTime: 2023-08-01 22:12:28
+ * @FilePath: /BunnyHole/version.h.in
+ * @Description: 
+ * 
+ * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
+ */
+#ifndef VERSION_H_IN
+#define VERSION_H_IN
+
+#define VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define VERSION_PATCH @PROJECT_VERSION_PATCH@
+
+#define BUILD_TIMESTAMP "@BUILD_TIMESTAMP@"
+
+#define GIT_BRANCH "@GIT_BRANCH@"
+#define GIT_HASH "@GIT_HASH@"
+
+#endif // VERSION_H_IN
