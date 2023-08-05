@@ -25,7 +25,6 @@ public:
     };
     static const QString OperateStr[];
     explicit BunnyHoleProtocol();
-    void append(QString str);
     void build_message();
     bool parse(const QByteArray& data);
     QByteArray data();

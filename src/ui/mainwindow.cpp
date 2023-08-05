@@ -38,21 +38,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->listWidget->setSpacing(0);
     ui->listWidget->setVerticalScrollMode(QListWidget::ScrollPerPixel);
-    for(auto i=0;i<5;i++){
-        ClientModel c;
-        c.ip = QString::number(i);
-        c.hostname = "sdasd";
-        ListItem* item = new ListItem(c);
+//    for(auto i=0;i<5;i++){
+//        ClientModel c;
+//        c.ip = QString::number(i);
+//        c.hostname = "sdasd";
+//        ListItem* item = new ListItem(c);
 
-        item->title_height = 60;
-        QListWidgetItem * pItem = new QListWidgetItem();
-        pItem->setSizeHint({300,60});
-        ui->listWidget->addItem(pItem);
-        ui->listWidget->setItemWidget(pItem,item);
-        connect(item, &ListItem::size_changed, [pItem](int h){
-            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
-        });
-    }
+//        item->title_height = 60;
+//        QListWidgetItem * pItem = new QListWidgetItem();
+//        pItem->setSizeHint({300,0});
+//        ui->listWidget->addItem(pItem);
+//        ui->listWidget->setItemWidget(pItem,item);
+//        connect(item, &ListItem::size_changed, [pItem](int h){
+//            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
+//        });
+//    }
 
 }
 
@@ -93,7 +93,7 @@ void MainWindow::new_clien_oneline(BunnyHoleProtocol protoc)
     ListItem* item = new ListItem(protoc.to_client_model());
     item->title_height = 60;
     pItem->setText(protoc.host);
-    pItem->setSizeHint({ 300,60 });
+    pItem->setSizeHint({ 300,0 });
     ui->listWidget->addItem(pItem);
     ui->listWidget->setItemWidget(pItem, item);
 
@@ -106,7 +106,16 @@ void MainWindow::client_offline(BunnyHoleProtocol protoc)
 {
     auto list = ui->listWidget->findItems(protoc.host, Qt::MatchExactly);
     for (auto& i : list) {
-        delete i;
+        ListItem* widget = dynamic_cast<ListItem*>( ui->listWidget->itemWidget(i) );
+        widget->offline_animation();
+        connect(widget,&ListItem::offline_ok,this,[this,protoc](){
+            auto rlist = ui->listWidget->findItems(protoc.host, Qt::MatchExactly);
+            for (auto& i : rlist) {
+                delete i;
+
+            }
+        });
+
     }
     //qDeleteAll(ui->listWidget->findItems(protoc.host, Qt::MatchFixedString));
 }

@@ -6,7 +6,6 @@
 namespace Ui {
 class ListItem;
 }
-
 class ListItem : public QWidget
 {
     Q_OBJECT
@@ -18,13 +17,17 @@ public:
     int title_height = 60;
     int height = 200;
     bool update();
+
+    void online_animation();
+    void offline_animation();
 signals:
     void size_changed(int value);
+    void offline_ok();
 private slots:
     void slotShowWidget();
     void on_pushButton_clicked();
-
 private:
+
     Ui::ListItem *ui;
     bool _showFlg = false;
     ClientModel model;
