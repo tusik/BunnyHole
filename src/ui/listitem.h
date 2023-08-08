@@ -15,7 +15,7 @@ public:
     ~ListItem();
     bool set_model(ClientModel& m);
     int title_height = 60;
-    int height = 200;
+    int height = 120;
     bool update();
 
     void online_animation();

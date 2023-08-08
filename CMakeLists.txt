@@ -73,6 +73,8 @@ include_directories("include/")
 set(PROJECT_SOURCES
         include/version.h
         main.cpp
+        src/kernel/bunny.h
+        src/kernel/bunny.cpp
         src/kernel/bunnyhole.h
         src/kernel/bunnyhole.cpp
         src/kernel/bunnyholeprotocol.h

@@ -62,8 +62,10 @@ void ListItem::slotShowWidget()
         animation->setEndValue(height);
         connect(animation, &QPropertyAnimation::valueChanged,this, [&](const QVariant& value){
             this->setFixedHeight(value.toInt());
+            ui->content_widget->setFixedHeight(value.toInt()-title_height);
             emit size_changed(value.toInt());
         });
+
         animation->start(QAbstractAnimation::DeleteWhenStopped);
         _showFlg = true;
     }else {
@@ -72,6 +74,7 @@ void ListItem::slotShowWidget()
         animation->setEndValue(title_height);
         connect(animation, &QPropertyAnimation::valueChanged,this, [&](const QVariant& value){
             this->setFixedHeight(value.toInt());
+            ui->content_widget->setFixedHeight(value.toInt()-title_height);
             emit size_changed(value.toInt());
         });
         animation->start(QAbstractAnimation::DeleteWhenStopped);

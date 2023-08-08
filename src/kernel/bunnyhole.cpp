@@ -88,7 +88,7 @@ bool BunnyHole::start(QString interface_name)
     client_online();
     connect(&notify_timer,&QTimer::timeout,this,&BunnyHole::client_alive);
     notify_timer.setInterval(3000);
-    notify_timer.start();
+//    notify_timer.start();
     return true;
 }
 
