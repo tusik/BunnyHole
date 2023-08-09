@@ -2,14 +2,14 @@
  * @Author: Image image@by.cx
  * @Date: 2023-08-01 16:41:38
  * @LastEditors: Image image@by.cx
- * @LastEditTime: 2023-08-01 19:44:04
+ * @LastEditTime: 2023-08-01 22:04:43
  * @filePathColon: /
  * @Description: 
  * 
  * Copyright (c) 2023 by Image image@by.cx, All Rights Reserved.
  */
 #include "bunnyholeprotocolbuilder.h"
-
+#include <version.h>
 BunnyHoleProtocolBuilder::BunnyHoleProtocolBuilder()
 {
 
@@ -22,35 +22,48 @@ BunnyHoleProtocolBuilder BunnyHoleProtocolBuilder::builder()
 
 BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::search()
 {
-    protocol.message_body.append("M-SEARCH * HTTP/1.1\n\n");
+    protocol.current_operate = BunnyHoleProtocol::Operate::WHEREYOUARE;
     return *this;
 }
 
-BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::host(QString hostname)
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::alive()
 {
-    protocol.append("HOST: ");
-    protocol.append(hostname);
-    protocol.append("\n\n");
+    protocol.current_operate = BunnyHoleProtocol::Operate::IMHERE;
     return *this;
 }
 
-BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::man(QString man_str)
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::host(QString host)
 {
-    protocol.append("MAN: ");
-    protocol.append(man_str);
-    protocol.append("\n\n");
+    protocol.host = host;
     return *this;
 }
 
-BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::mx(int mx_count)
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::user_agent()
 {
-    protocol.append("MX: ");
-    protocol.append(QString::number(mx_count));
-    protocol.append("\n\n");
+    protocol.version = QString("%1.%2.%3")
+            .arg(VERSION_MAJOR)
+            .arg(VERSION_MINOR)
+            .arg(VERSION_PATCH);
+    return *this;
+}
+
+BunnyHoleProtocolBuilder& BunnyHoleProtocolBuilder::id(QString _id)
+{
+    protocol.id = _id;
+    return *this;
+}
+
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::hostname(QString hn)
+{
+    protocol.hostname = hn;
     return *this;
 }
 
 BunnyHoleProtocol BunnyHoleProtocolBuilder::build()
 {
+    protocol.build_message();
     return protocol;
 }
+
+
+

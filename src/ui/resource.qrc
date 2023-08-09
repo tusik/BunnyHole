@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>style.qss</file>
+        <file>static/image/down-arrow.svg</file>
+        <file>static/image/up-arrow.svg</file>
+        <file>static/image/android.svg</file>
+        <file>static/image/mac.svg</file>
+        <file>static/image/windows.svg</file>
+        <file>static/image/linux.svg</file>
+        <file>static/image/question.svg</file>
+    </qresource>
+</RCC>
