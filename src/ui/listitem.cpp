@@ -3,6 +3,12 @@
 #include <QDebug>
 #include <QPropertyAnimation>
 #include <QListWidgetItem>
+#include <QTreeView>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDirIterator>
+#include <QCborStreamWriter>
+#include "filedialog.h"
 ListItem::ListItem(ClientModel m,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ListItem),
@@ -117,4 +123,36 @@ void ListItem::offline_animation()
     });
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
+
+
+void ListItem::on_transfer_btn_clicked()
+{
+    FileDialog dialog;
+
+    dialog.exec();
+    QStringList files = dialog.selectedFiles();
+    qDebug()<<files;
+    bunny::Dir root;
+    root.root = QDir(QDir(files.first()).absolutePath());
+    for(auto& i:files){
+        QFileInfo info(i);
+        if(info.isFile()){
+            root.files.append(bunny::File(info));
+        }else if(info.isDir()){
+            bunny::Dir dir;
+            dir.root = QDir(i);
+            dir = dir.walk_path(i,dir);
+            root.sub_dirs.append(dir);
+        }
+
+    }
+    emit request_transfer(root);
+//    auto obj = dir.to_cbor();
+//    QByteArray arr;
+//    QCborStreamWriter writer(&arr);
+//    dir.serialiseCborMap(writer,obj);
+//    qDebug()<< arr.length();
+}
+
+
 

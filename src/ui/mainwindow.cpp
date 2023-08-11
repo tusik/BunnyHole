@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QStandardItem>
 #include "listitem.h"
+#include "transferdialog.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -38,21 +39,29 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->listWidget->setSpacing(0);
     ui->listWidget->setVerticalScrollMode(QListWidget::ScrollPerPixel);
-//    for(auto i=0;i<5;i++){
-//        ClientModel c;
-//        c.ip = QString::number(i);
-//        c.hostname = "sdasd";
-//        ListItem* item = new ListItem(c);
+    for(auto i=0;i<5;i++){
+        ClientModel c;
+        c.ip = QString::number(i);
+        c.hostname = "Test";
+        ListItem* item = new ListItem(c);
 
-//        item->title_height = 60;
-//        QListWidgetItem * pItem = new QListWidgetItem();
-//        pItem->setSizeHint({300,0});
-//        ui->listWidget->addItem(pItem);
-//        ui->listWidget->setItemWidget(pItem,item);
-//        connect(item, &ListItem::size_changed, [pItem](int h){
-//            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
-//        });
-//    }
+        item->title_height = 60;
+        QListWidgetItem * pItem = new QListWidgetItem();
+        pItem->setSizeHint({160,0});
+        ui->listWidget->addItem(pItem);
+        ui->listWidget->setItemWidget(pItem,item);
+        connect(item, &ListItem::size_changed, [pItem](int h){
+            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
+        });
+        connect(item, &ListItem::request_transfer, this,&MainWindow::accept_transfer_request);
+    }
+    TransferDialog* dia = new TransferDialog();
+    dia->show();
+    QStandardItemModel* model = new QStandardItemModel(dia);
+    model->setHorizontalHeaderLabels(QStringList()<<QStringLiteral("Size")<<QStringLiteral("File name"));
+    QStandardItem* itemProject = new QStandardItem(QIcon(),QStringLiteral("项目"));
+    model->appendRow(itemProject);
+    dia->set_model(model);
 
 }
 
@@ -118,6 +127,13 @@ void MainWindow::client_offline(BunnyHoleProtocol protoc)
 
     }
     //qDeleteAll(ui->listWidget->findItems(protoc.host, Qt::MatchFixedString));
+}
+
+void MainWindow::accept_transfer_request(bunny::Dir dir)
+{
+    TransferDialog* dia = new TransferDialog();
+    dia->show();
+    dia->model_from_dir(dir);
 }
 
 

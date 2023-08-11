@@ -5,6 +5,7 @@
 #include "../kernel/bunnyhole.h"
 #include "../kernel/configuration.h"
 #include "model/clientmodel.h"
+#include "../kernel/file/bunnydir.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -25,6 +26,7 @@ private slots:
     bool write_local_data();
     void new_clien_oneline(BunnyHoleProtocol protoc);
     void client_offline(BunnyHoleProtocol protoc);
+    void accept_transfer_request(bunny::Dir dir);
 private:
     Ui::MainWindow *ui;
 

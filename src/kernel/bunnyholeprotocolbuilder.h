@@ -25,6 +25,7 @@ public:
     BunnyHoleProtocolBuilder& user_agent();
     BunnyHoleProtocolBuilder& id(QString _id);
     BunnyHoleProtocolBuilder& hostname(QString hn);
+    BunnyHoleProtocolBuilder& port(uint port);
     BunnyHoleProtocol build();
 private:
     BunnyHoleProtocol protocol;

@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include "model/clientmodel.h"
+
+#include "../kernel/file/bunnydir.h"
+#include <QFileDialog>
 namespace Ui {
 class ListItem;
 }
@@ -20,14 +23,17 @@ public:
 
     void online_animation();
     void offline_animation();
+
 signals:
     void size_changed(int value);
     void offline_ok();
+    void request_transfer(bunny::Dir dir);
 private slots:
     void slotShowWidget();
     void on_pushButton_clicked();
-private:
+    void on_transfer_btn_clicked();
 
+private:
     Ui::ListItem *ui;
     bool _showFlg = false;
     ClientModel model;

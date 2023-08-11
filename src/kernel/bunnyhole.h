@@ -10,6 +10,7 @@
 #include <QNetworkInterface>
 #include "bunnyholeprotocol.h"
 #include "configuration.h"
+#include "bunny.h"
 class BunnyHole : public QObject
 {
     Q_OBJECT
@@ -28,10 +29,12 @@ public slots:
     bool client_alive();
     void read_message();
     void message_process(BunnyHoleProtocol& bhp);
+    void new_food_incoming(Carrot c);
 signals:
     void new_client_online(BunnyHoleProtocol protocol);
     void clinet_offline(BunnyHoleProtocol protocol);
-
+private:
+    Bunny bunny;
 };
 
 #endif // BUNNYHOLE_H
