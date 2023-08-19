@@ -7,7 +7,7 @@ BunnyChild::BunnyChild(QObject *parent)
 
 }
 
-bool BunnyChild::connect_mom(QHostAddress addr, int port)
+bool BunnyChild::connect_mom(QUrl url)
 {
     socket = new QWebSocket();
     connect(socket,&QWebSocket::connected,this,[&](){
@@ -16,7 +16,9 @@ bool BunnyChild::connect_mom(QHostAddress addr, int port)
     connect(socket,&QWebSocket::disconnected,this,[](){
 
     });
-    socket->open(QUrl("ws://"+addr.toString()+":"+port));
+    connect(socket,&QWebSocket::textMessageReceived,this,&BunnyChild::recive_message);
+    socket->open(url);
+
     return true;
 }
 
@@ -36,4 +38,9 @@ void BunnyChild::send_transfer_request(bunny::Dir dir)
     QCborStreamWriter writer(&ba);
     dir.serialiseCborMap(writer,dir.to_cbor());
     socket->sendTextMessage(ba);
+}
+
+void BunnyChild::recive_message(QString msg)
+{
+
 }

@@ -23,7 +23,7 @@ public:
 
     void online_animation();
     void offline_animation();
-
+    ClientModel get_model();
 signals:
     void size_changed(int value);
     void offline_ok();

@@ -9,12 +9,13 @@ public:
     Carrot();
     Carrot(const Carrot& c);
     bool read_struct(QString file);
-    bool parse_leaf(QString json);
+    bool parse_leaf(QByteArray obj);
     QByteArray transfer_request();
     QByteArray data();
+
+    CarrotLeaf leaf;
 private:
     QFile* target_file;
-    CarrotLeaf leaf;
 
 };
 

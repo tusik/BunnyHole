@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QDir>
 #include <QStandardItem>
+#include <QSslCertificate>
 #include "listitem.h"
 #include "transferdialog.h"
 MainWindow::MainWindow(QWidget *parent)
@@ -41,8 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->listWidget->setVerticalScrollMode(QListWidget::ScrollPerPixel);
     for(auto i=0;i<5;i++){
         ClientModel c;
-        c.ip = QString::number(i);
-        c.hostname = "Test";
+        c.ip = "127.0.0.1";
+        c.hostname = "AAAA";
+        c.port = 8765;
         ListItem* item = new ListItem(c);
 
         item->title_height = 60;
@@ -53,7 +55,9 @@ MainWindow::MainWindow(QWidget *parent)
         connect(item, &ListItem::size_changed, [pItem](int h){
             pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
         });
-        connect(item, &ListItem::request_transfer, this,&MainWindow::accept_transfer_request);
+        connect(item, &ListItem::request_transfer, this,&MainWindow::send_transfer_request);
+        // FOR TEST ONLY
+        //connect(item, &ListItem::request_transfer, this,&MainWindow::recive_transfer_request);
     }
     TransferDialog* dia = new TransferDialog();
     dia->show();
@@ -129,11 +133,42 @@ void MainWindow::client_offline(BunnyHoleProtocol protoc)
     //qDeleteAll(ui->listWidget->findItems(protoc.host, Qt::MatchFixedString));
 }
 
-void MainWindow::accept_transfer_request(bunny::Dir dir)
+void MainWindow::send_transfer_request(bunny::Dir dir)
+{
+    ListItem* item = static_cast<ListItem*>(sender());
+    auto model = item->get_model();
+    auto itr = bunnys.find(model);
+    BunnyChild* child;
+    if(itr != bunnys.end()){
+        child = itr.value();
+    }else{
+        // new bunny;
+        child = new BunnyChild();
+        qDebug()<<"ws://"+model.ip+":"+QString::number(model.port);
+        child->connect_mom(QUrl("ws://"+model.ip+":"+QString::number(model.port)));
+        bunnys.insert(model,child);
+    }
+    //child->send_transfer_request(dir);
+}
+
+void MainWindow::recive_transfer_request(bunny::Dir dir)
 {
     TransferDialog* dia = new TransferDialog();
-    dia->show();
     dia->model_from_dir(dir);
+    int rec = dia->exec();
+    if(rec == QDialog::Accepted){
+        qDebug()<<dia->isFullScreen();
+        send_accpet_transfer_request("ss");
+    }
+}
+
+void MainWindow::send_accpet_transfer_request(QString host)
+{
+    Carrot c;
+    c.leaf.type = CarrotOperatorCBorType::AcceptFileTransfer;
+    c.leaf.from_host = "";
+    c.leaf.to_host = host;
+    hole->bunny.send_message(c);
 }
 
 

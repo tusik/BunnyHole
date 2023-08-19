@@ -19,6 +19,9 @@ public:
     ~TransferDialog();
     bool set_model(QStandardItemModel* m);
     bool model_from_dir(bunny::Dir& dir);
+    bool is_recive = false;
+signals:
+    void accpted();
 private slots:
     void on_buttonBox_accepted();
 

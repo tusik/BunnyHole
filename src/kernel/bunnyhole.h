@@ -11,6 +11,10 @@
 #include "bunnyholeprotocol.h"
 #include "configuration.h"
 #include "bunny.h"
+/**
+ * @brief The BunnyHole class
+ * UDP multicast tool to send & recive message from multicast address
+ */
 class BunnyHole : public QObject
 {
     Q_OBJECT
@@ -23,18 +27,20 @@ public:
     QList<QNetworkInterface> get_local_hostinfo();
     QTimer notify_timer;
     const Configuration config;
+
+    Bunny bunny;
 public slots:
     bool start(QString interface_name);
+
+    // udp
     bool client_online();
     bool client_alive();
     void read_message();
     void message_process(BunnyHoleProtocol& bhp);
-    void new_food_incoming(Carrot c);
 signals:
     void new_client_online(BunnyHoleProtocol protocol);
     void clinet_offline(BunnyHoleProtocol protocol);
 private:
-    Bunny bunny;
 };
 
 #endif // BUNNYHOLE_H

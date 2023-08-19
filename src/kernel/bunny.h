@@ -7,7 +7,7 @@
 #include <QMap>
 #include "carrot.h"
 /**
- * @brief Bunny, The TCP file transport worker.
+ * @brief Bunny, The WebSocket Server file transport worker.
  */
 class Bunny : public QObject
 {
@@ -15,7 +15,7 @@ class Bunny : public QObject
 public:
     explicit Bunny(QObject *parent = nullptr);
     bool start(int port = 22333);
-
+    bool send_message(Carrot c);
     int port = 22333;
 public slots:
     void new_child();

@@ -21,6 +21,12 @@ bool Bunny::start(int port)
     return false;
 }
 
+bool Bunny::send_message(Carrot c)
+{
+    QWebSocket* child_socket = children[c.leaf.to_host];
+    return true;
+}
+
 void Bunny::new_child()
 {
     QWebSocket* child_socket = server->nextPendingConnection();
@@ -36,8 +42,12 @@ void Bunny::process_message(QString msg)
     if(transfer_status[child_socket->peerAddress().toString()] == false){
 
         Carrot carrot;
-        if(carrot.parse_leaf(msg)){
-            emit new_food_incoming(carrot);
+        if(carrot.parse_leaf(msg.toUtf8())){
+            switch(carrot.leaf.type){
+            case CarrotOperatorCBorType::SendRequest:
+                emit new_food_incoming(carrot);
+                break;
+            }
         }
         child_socket->sendTextMessage(carrot.transfer_request());
 

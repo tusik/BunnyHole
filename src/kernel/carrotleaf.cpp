@@ -1,28 +1,28 @@
 ﻿#include "carrotleaf.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+
 #include <QCryptographicHash>
 QByteArray CarrotLeaf::build_request()
 {
-    QJsonObject obj;
-    obj["name"] = name;
-    obj["length"] = length;
-    obj["checksum"] = checksum(obj);
-    return QJsonDocument(obj).toJson();
+    QCborMap obj;
+    auto data = dir.to_cbor();
+    obj.insert(CarrotLeafCBorType::Data,data);
+    obj.insert(CarrotLeafCBorType::OperatorType,CarrotOperatorCBorType::SendRequest);
+    obj.insert(CarrotLeafCBorType::CheckSum,bunny::cbor_to_byte(data));
+    return bunny::cbor_to_byte(obj);
 }
 
-QString CarrotLeaf::checksum(QJsonObject obj)
+QString CarrotLeaf::checksum(QByteArray &obj)
 {
     QCryptographicHash hash(QCryptographicHash::Algorithm::Sha1);
-    hash.addData(obj["name"].toString().toUtf8());
-    hash.addData(QString::number(obj["length"].toInt()).toUtf8());
-
+    hash.addData(obj);
     return hash.result().toHex();
 }
 
-bool CarrotLeaf::parse(QJsonObject obj)
+bool CarrotLeaf::parse(QByteArray& obj)
 {
-    name = obj["name"].toString();
-    length = obj["length"].toInt();
-    return checksum(obj) == obj["checksum"].toString();
+    QCborMap map = bunny::byte_to_cbor(obj);
+    auto data = bunny::cbor_to_byte(map[CarrotLeafCBorType::Data].toMap());
+    type = CarrotOperatorCBorType(map[CarrotLeafCBorType::OperatorType].toInteger());
+    return checksum(data)
+           == map[CarrotLeafCBorType::CheckSum].toString();
 }

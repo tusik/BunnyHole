@@ -15,9 +15,23 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QCborMap>
+#include <QCborStreamWriter>
 #include <QStandardItemModel>
 #include "bunnyfile.h"
 namespace bunny {
+static QByteArray cbor_to_byte(const QCborMap &map){
+    QByteArray ba;
+    QCborStreamWriter stream(&ba);
+    map.toCborValue().toCbor(stream);
+    return ba;
+}
+static QCborMap byte_to_cbor(const QByteArray& byte){
+    QCborMap map;
+    QCborValue val;
+    val.fromCbor(byte);
+    map = val.toMap();
+    return map;
+}
 class Dir
 {
 public:
@@ -31,7 +45,7 @@ public:
     QDir root;
     long long total_size =0;
     bool failed_load_file_tree = false;
-    Dir walk_path(QString root_path,Dir& root_dir);
+    static Dir walk_path(QString root_path,Dir* root_dir = nullptr);
     QJsonObject to_json();
     QCborMap to_cbor();
     int depth = 0;

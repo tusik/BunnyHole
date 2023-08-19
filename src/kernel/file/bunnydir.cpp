@@ -9,16 +9,20 @@ bunny::Dir::Dir()
 
 }
 
-bunny::Dir bunny::Dir::walk_path(QString root_path, Dir &root_dir)
+bunny::Dir bunny::Dir::walk_path(QString root_path, Dir *root_dir)
 {
     Dir dir;
+    if(root_dir == nullptr){
+        dir.root = QDir(root_path);
+        root_dir = &dir;
+    }
     QDirIterator it(QFileInfo(root_path).absoluteFilePath());
     dir.root = QDir(root_path);
-    root_dir.depth ++;
+    root_dir->depth ++;
     // 128 is the max depth
-    if(root_dir.depth > 128){
-        root_dir.depth --;
-        failed_load_file_tree = true;
+    if(root_dir->depth > 128){
+        root_dir->depth --;
+        root_dir->failed_load_file_tree = true;
         qWarning("Max depth reached");
         return dir;
     }
@@ -31,7 +35,7 @@ bunny::Dir bunny::Dir::walk_path(QString root_path, Dir &root_dir)
 
             }else{
                 dir.sub_dirs.append(walk_path(root_path+"/"+info.baseName(),root_dir));
-                if (failed_load_file_tree)
+                if (root_dir->failed_load_file_tree)
                 {
                     return dir;
                 }
@@ -39,12 +43,12 @@ bunny::Dir bunny::Dir::walk_path(QString root_path, Dir &root_dir)
             }
         }else if(info.isFile()){
             dir.files.append(File(info));
-            root_dir.total_size += info.size();
+            root_dir->total_size += info.size();
 
         }
 
     }
-    root_dir.depth --;
+    root_dir->depth --;
     return dir;
 }
 
