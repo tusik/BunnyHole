@@ -24,8 +24,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Network REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Network WebSockets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network WebSockets REQUIRED)
 string(TIMESTAMP BUILD_TIMESTAMP "%Y-%m-%d %H:%M:%S")
 message("Build timestamp is ${BUILD_TIMESTAMP}")
 # get git hash
@@ -73,8 +73,14 @@ include_directories("include/")
 set(PROJECT_SOURCES
         include/version.h
         main.cpp
+        src/kernel/carrot.h
+        src/kernel/carrot.cpp
+        src/kernel/carrotleaf.h
+        src/kernel/carrotleaf.cpp
         src/kernel/bunny.h
         src/kernel/bunny.cpp
+        src/kernel/bunnychild.h
+        src/kernel/bunnychild.cpp
         src/kernel/bunnyhole.h
         src/kernel/bunnyhole.cpp
         src/kernel/bunnyholeprotocol.h
@@ -88,10 +94,19 @@ set(PROJECT_SOURCES
         src/ui/mainwindow.cpp
         src/ui/mainwindow.h
         src/ui/mainwindow.ui
+        src/ui/transferdialog.h
+        src/ui/transferdialog.cpp
+        src/ui/transferdialog.ui
         src/ui/listitem.h
         src/ui/listitem.cpp
         src/ui/listitem.ui
+        src/ui/filedialog.h
+        src/ui/filedialog.cpp
         src/ui/resource.qrc
+        src/kernel/file/bunnydir.h
+        src/kernel/file/bunnydir.cpp
+        src/kernel/file/bunnyfile.h
+        src/kernel/file/bunnyfile.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -114,6 +129,7 @@ endif()
 target_link_libraries(BunnyHole PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::WebSockets
     )
 
 set_target_properties(BunnyHole PROPERTIES

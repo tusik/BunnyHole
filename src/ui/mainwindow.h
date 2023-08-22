@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include "../kernel/bunnyhole.h"
+#include "../kernel/bunnychild.h"
 #include "../kernel/configuration.h"
 #include "model/clientmodel.h"
+#include "../kernel/file/bunnydir.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -25,8 +27,12 @@ private slots:
     bool write_local_data();
     void new_clien_oneline(BunnyHoleProtocol protoc);
     void client_offline(BunnyHoleProtocol protoc);
+    void send_transfer_request(bunny::Dir dir);
+    void recive_transfer_request(bunny::Dir dir);
+    void send_accpet_transfer_request(QString host);
 private:
     Ui::MainWindow *ui;
+    QHash<ClientModel,BunnyChild*> bunnys;
 
 };
 #endif // MAINWINDOW_H

@@ -3,6 +3,13 @@
 #include <QDebug>
 #include <QPropertyAnimation>
 #include <QListWidgetItem>
+#include <QTreeView>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDirIterator>
+#include <QCborStreamWriter>
+#include "filedialog.h"
+#include "transferdialog.h"
 ListItem::ListItem(ClientModel m,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ListItem),
@@ -12,6 +19,7 @@ ListItem::ListItem(ClientModel m,QWidget *parent) :
     this->setAttribute(Qt::WA_StyledBackground);
     ui->content_widget->setAttribute(Qt::WA_StyledBackground);
 //    setWindowFlags( Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint );
+
     online_animation();
     update();
 }
@@ -117,4 +125,51 @@ void ListItem::offline_animation()
     });
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
+
+ClientModel ListItem::get_model()
+{
+    return model;
+}
+
+
+void ListItem::on_transfer_btn_clicked()
+{
+    FileDialog dialog;
+    dialog.exec();
+    QStringList files = dialog.selectedFiles();
+    qDebug()<<files;
+    if(files.isEmpty()){
+        return;
+    }
+    bunny::Dir root;
+    root.root = QDir(QDir(files.first()).absolutePath());
+    for(auto& i:files){
+        QFileInfo info(i);
+        if(info.isFile()){
+            root.files.append(bunny::File(info));
+            root.total_size += info.size();
+        }else if(info.isDir()){
+            bunny::Dir dir;
+            dir.root = QDir(i);
+            dir = bunny::Dir::walk_path(i);
+            root.sub_dirs.append(dir);
+            root.total_size += dir.total_size;
+        }
+
+    }
+    TransferDialog* dia = new TransferDialog();
+    dia->is_recive = false;
+    dia->model_from_dir(root);
+    int rec = dia->exec();
+    if(rec == QDialog::Accepted){
+        emit request_transfer(root);
+    }
+//    auto obj = dir.to_cbor();
+//    QByteArray arr;
+//    QCborStreamWriter writer(&arr);
+//    dir.serialiseCborMap(writer,obj);
+//    qDebug()<< arr.length();
+}
+
+
 

@@ -59,6 +59,12 @@ BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::hostname(QString hn)
     return *this;
 }
 
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::port(uint port)
+{
+    protocol.port = port;
+    return *this;
+}
+
 BunnyHoleProtocol BunnyHoleProtocolBuilder::build()
 {
     protocol.build_message();

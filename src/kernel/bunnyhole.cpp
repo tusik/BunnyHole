@@ -20,6 +20,7 @@ bool BunnyHole::client_online()
             .user_agent()
             .hostname(QHostInfo::localHostName())
             .id(config.system_id)
+            .port(bunny.port)
             .build();
     QByteArray data = protocol.data();
     if(udp_socket->isOpen()){
@@ -39,6 +40,8 @@ bool BunnyHole::client_alive()
             .alive()
             .hostname(QHostInfo::localHostName())
             .user_agent()
+            .port(bunny.port)
+            .id(config.system_id)
             .build();
     QByteArray data = protocol.data();
     if(udp_socket->isOpen()){
@@ -67,6 +70,7 @@ QList<QNetworkInterface> BunnyHole::get_local_hostinfo()
 
 bool BunnyHole::start(QString interface_name)
 {
+    /// activate BunnyHole UDP announce server
     auto res = udp_socket->bind(QHostAddress::AnyIPv4,group_address.port(),QUdpSocket::ShareAddress);
     if(!res){
         return false;
@@ -89,6 +93,9 @@ bool BunnyHole::start(QString interface_name)
     connect(&notify_timer,&QTimer::timeout,this,&BunnyHole::client_alive);
     notify_timer.setInterval(3000);
 //    notify_timer.start();
+    /// activate Bunny TCP transfer
+    bunny.start();
+
     return true;
 }
 

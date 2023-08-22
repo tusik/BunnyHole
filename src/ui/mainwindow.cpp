@@ -3,7 +3,9 @@
 #include <QFile>
 #include <QDir>
 #include <QStandardItem>
+#include <QSslCertificate>
 #include "listitem.h"
+#include "transferdialog.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -38,21 +40,32 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->listWidget->setSpacing(0);
     ui->listWidget->setVerticalScrollMode(QListWidget::ScrollPerPixel);
-//    for(auto i=0;i<5;i++){
-//        ClientModel c;
-//        c.ip = QString::number(i);
-//        c.hostname = "sdasd";
-//        ListItem* item = new ListItem(c);
+    for(auto i=0;i<5;i++){
+        ClientModel c;
+        c.ip = "127.0.0.1";
+        c.hostname = "AAAA";
+        c.port = 8765;
+        ListItem* item = new ListItem(c);
 
-//        item->title_height = 60;
-//        QListWidgetItem * pItem = new QListWidgetItem();
-//        pItem->setSizeHint({300,0});
-//        ui->listWidget->addItem(pItem);
-//        ui->listWidget->setItemWidget(pItem,item);
-//        connect(item, &ListItem::size_changed, [pItem](int h){
-//            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
-//        });
-//    }
+        item->title_height = 60;
+        QListWidgetItem * pItem = new QListWidgetItem();
+        pItem->setSizeHint({160,0});
+        ui->listWidget->addItem(pItem);
+        ui->listWidget->setItemWidget(pItem,item);
+        connect(item, &ListItem::size_changed, [pItem](int h){
+            pItem->setSizeHint(QSize(pItem->sizeHint().width(), h));
+        });
+        connect(item, &ListItem::request_transfer, this,&MainWindow::send_transfer_request);
+        // FOR TEST ONLY
+        //connect(item, &ListItem::request_transfer, this,&MainWindow::recive_transfer_request);
+    }
+    TransferDialog* dia = new TransferDialog();
+    dia->show();
+    QStandardItemModel* model = new QStandardItemModel(dia);
+    model->setHorizontalHeaderLabels(QStringList()<<QStringLiteral("Size")<<QStringLiteral("File name"));
+    QStandardItem* itemProject = new QStandardItem(QIcon(),QStringLiteral("项目"));
+    model->appendRow(itemProject);
+    dia->set_model(model);
 
 }
 
@@ -118,6 +131,44 @@ void MainWindow::client_offline(BunnyHoleProtocol protoc)
 
     }
     //qDeleteAll(ui->listWidget->findItems(protoc.host, Qt::MatchFixedString));
+}
+
+void MainWindow::send_transfer_request(bunny::Dir dir)
+{
+    ListItem* item = static_cast<ListItem*>(sender());
+    auto model = item->get_model();
+    auto itr = bunnys.find(model);
+    BunnyChild* child;
+    if(itr != bunnys.end()){
+        child = itr.value();
+    }else{
+        // new bunny;
+        child = new BunnyChild();
+        qDebug()<<"ws://"+model.ip+":"+QString::number(model.port);
+        child->connect_mom(QUrl("ws://"+model.ip+":"+QString::number(model.port)));
+        bunnys.insert(model,child);
+    }
+    //child->send_transfer_request(dir);
+}
+
+void MainWindow::recive_transfer_request(bunny::Dir dir)
+{
+    TransferDialog* dia = new TransferDialog();
+    dia->model_from_dir(dir);
+    int rec = dia->exec();
+    if(rec == QDialog::Accepted){
+        qDebug()<<dia->isFullScreen();
+        send_accpet_transfer_request("ss");
+    }
+}
+
+void MainWindow::send_accpet_transfer_request(QString host)
+{
+    Carrot c;
+    c.leaf.type = CarrotOperatorCBorType::AcceptFileTransfer;
+    c.leaf.from_host = "";
+    c.leaf.to_host = host;
+    hole->bunny.send_message(c);
 }
 
 
