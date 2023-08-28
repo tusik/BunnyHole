@@ -95,7 +95,7 @@ bool BunnyHole::start(QString interface_name)
 //    notify_timer.start();
     /// activate Bunny TCP transfer
     bunny.start();
-
+    connect(&bunny,&Bunny::new_food_incoming,this,&BunnyHole::new_transfer_request);
     return true;
 }
 

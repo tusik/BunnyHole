@@ -91,7 +91,7 @@ QCborMap bunny::Dir::to_cbor()
     return map;
 }
 
-void bunny::Dir::serialiseCborMap(QCborStreamWriter &stream, const QCborMap &map)
+void bunny::Dir::serialise_map(QCborStreamWriter &stream, const QCborMap &map)
 {
     map.toCborValue().toCbor(stream);
 }
@@ -110,6 +110,26 @@ bunny::Dir bunny::Dir::parse(const QCborMap &map)
     QCborArray dir_arr = map.value(Dir::CBOR_TYPE::DIR).toArray();
     for(auto i:dir_arr){
         QCborMap dir_obj = i.toMap();
+        dir.sub_dirs.append(Dir::parse(dir_obj));
+    }
+    return dir;
+}
+
+bunny::Dir bunny::Dir::parse(const QJsonObject &map)
+{
+    Dir dir;
+    QJsonArray file_arr = map[QString::number(Dir::CBOR_TYPE::FILE)].toArray();
+
+    for(auto i:qAsConst(file_arr)){
+        QJsonObject file_obj = i.toObject();
+        File file;
+        file.file_name = file_obj[QString::number(File::CBOR_TYPE::FileName)].toString();
+        file.size = file_obj[QString::number(File::CBOR_TYPE::Size)].toInt();
+        dir.files.append(file);
+    }
+    QJsonArray dir_arr = map[QString::number(Dir::CBOR_TYPE::DIR)].toArray();
+    for(auto i :qAsConst(dir_arr)){
+        QJsonObject dir_obj = i.toObject();
         dir.sub_dirs.append(Dir::parse(dir_obj));
     }
     return dir;

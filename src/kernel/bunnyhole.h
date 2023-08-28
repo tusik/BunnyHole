@@ -40,6 +40,7 @@ public slots:
 signals:
     void new_client_online(BunnyHoleProtocol protocol);
     void clinet_offline(BunnyHoleProtocol protocol);
+    void new_transfer_request(Carrot c);
 private:
 };
 

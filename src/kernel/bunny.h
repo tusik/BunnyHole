@@ -20,6 +20,7 @@ public:
 public slots:
     void new_child();
     void process_message(QString msg);
+    void process_binary_message(QByteArray msg);
 signals:
     void new_food_incoming(Carrot c);
 private:

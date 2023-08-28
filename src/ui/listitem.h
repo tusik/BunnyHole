@@ -5,6 +5,7 @@
 #include "model/clientmodel.h"
 
 #include "../kernel/file/bunnydir.h"
+#include "../kernel/carrot.h"
 #include <QFileDialog>
 namespace Ui {
 class ListItem;
@@ -27,7 +28,7 @@ public:
 signals:
     void size_changed(int value);
     void offline_ok();
-    void request_transfer(bunny::Dir dir);
+    void request_transfer(Carrot c);
 private slots:
     void slotShowWidget();
     void on_pushButton_clicked();

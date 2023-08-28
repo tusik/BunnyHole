@@ -27,8 +27,8 @@ private slots:
     bool write_local_data();
     void new_clien_oneline(BunnyHoleProtocol protoc);
     void client_offline(BunnyHoleProtocol protoc);
-    void send_transfer_request(bunny::Dir dir);
-    void recive_transfer_request(bunny::Dir dir);
+    void send_transfer_request(Carrot c);
+    void recive_transfer_request(Carrot c);
     void send_accpet_transfer_request(QString host);
 private:
     Ui::MainWindow *ui;

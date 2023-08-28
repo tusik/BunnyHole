@@ -12,6 +12,10 @@ enum CarrotOperatorCBorType{
     SendRequest,
     AcceptFileTransfer,
 };
+enum CarrotProtocol{
+    Json,
+    Cbor
+};
 
 struct CarrotLeaf
 {
@@ -22,7 +26,9 @@ struct CarrotLeaf
     QByteArray build_request();
     /// \brief 计算校验值的方法
     static QString checksum(QByteArray& obj);
-    bool parse(QByteArray& obj);
+    bool parse(QCborMap& map);
+    bool parse(QJsonObject& map);
+    CarrotProtocol protocol = Json;
 };
 Q_DECLARE_METATYPE(CarrotLeaf)
 #endif // CARROTLEAF_H

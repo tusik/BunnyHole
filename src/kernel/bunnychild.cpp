@@ -12,9 +12,14 @@ bool BunnyChild::connect_mom(QUrl url)
     socket = new QWebSocket();
     connect(socket,&QWebSocket::connected,this,[&](){
         qDebug()<<"connected";
+        ws_status = true;
+        if(!transfered_buffer.isEmpty()){
+            socket->sendBinaryMessage(transfered_buffer);
+            transfered_buffer.clear();
+        }
     });
-    connect(socket,&QWebSocket::disconnected,this,[](){
-
+    connect(socket,&QWebSocket::disconnected,this,[&](){
+        ws_status = false;
     });
     connect(socket,&QWebSocket::textMessageReceived,this,&BunnyChild::recive_message);
     socket->open(url);
@@ -32,12 +37,14 @@ bool BunnyChild::send_file(QString path)
     return false;
 }
 
-void BunnyChild::send_transfer_request(bunny::Dir dir)
+void BunnyChild::send_transfer_request(Carrot c)
 {
-    QByteArray ba;
-    QCborStreamWriter writer(&ba);
-    dir.serialiseCborMap(writer,dir.to_cbor());
-    socket->sendTextMessage(ba);
+    c.leaf.type = CarrotOperatorCBorType::SendRequest;
+    transfered_buffer = c.transfer_request();
+    if(ws_status){
+        socket->sendBinaryMessage(transfered_buffer);
+        transfered_buffer.clear();
+    }
 }
 
 void BunnyChild::recive_message(QString msg)
