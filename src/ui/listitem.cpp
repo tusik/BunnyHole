@@ -162,7 +162,9 @@ void ListItem::on_transfer_btn_clicked()
     dia->model_from_dir(root);
     int rec = dia->exec();
     if(rec == QDialog::Accepted){
-        emit request_transfer(root);
+        Carrot c;
+        c.leaf.dir = root;
+        emit request_transfer(c);
     }
 //    auto obj = dir.to_cbor();
 //    QByteArray arr;

@@ -14,7 +14,7 @@ public:
     File(QFileInfo& info);
     long long size;
     QString file_name;
-    QString size_str();
+    static QString size_str(long number);
 
 };
 }

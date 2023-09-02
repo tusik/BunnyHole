@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     connect(hole, &BunnyHole::new_client_online,this,&MainWindow::new_clien_oneline);
     connect(hole, &BunnyHole::clinet_offline, this, &MainWindow::client_offline);
+    connect(hole, &BunnyHole::new_transfer_request, this, &MainWindow::recive_transfer_request);
     // read config file
     if (read_local_data()) {
 
@@ -44,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
         ClientModel c;
         c.ip = "127.0.0.1";
         c.hostname = "AAAA";
-        c.port = 8765;
+        c.port = 22333;
         ListItem* item = new ListItem(c);
 
         item->title_height = 60;
@@ -133,7 +134,7 @@ void MainWindow::client_offline(BunnyHoleProtocol protoc)
     //qDeleteAll(ui->listWidget->findItems(protoc.host, Qt::MatchFixedString));
 }
 
-void MainWindow::send_transfer_request(bunny::Dir dir)
+void MainWindow::send_transfer_request(Carrot c)
 {
     ListItem* item = static_cast<ListItem*>(sender());
     auto model = item->get_model();
@@ -148,13 +149,13 @@ void MainWindow::send_transfer_request(bunny::Dir dir)
         child->connect_mom(QUrl("ws://"+model.ip+":"+QString::number(model.port)));
         bunnys.insert(model,child);
     }
-    //child->send_transfer_request(dir);
+    child->send_transfer_request(c);
 }
 
-void MainWindow::recive_transfer_request(bunny::Dir dir)
+void MainWindow::recive_transfer_request(Carrot c)
 {
     TransferDialog* dia = new TransferDialog();
-    dia->model_from_dir(dir);
+    dia->model_from_dir(c.leaf.dir);
     int rec = dia->exec();
     if(rec == QDialog::Accepted){
         qDebug()<<dia->isFullScreen();

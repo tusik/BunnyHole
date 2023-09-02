@@ -1,6 +1,7 @@
 ﻿#include "carrot.h"
 #include <QJsonDocument>
 #include <QObject>
+#include <QJsonArray>
 Carrot::Carrot()
 {
     qRegisterMetaType<Carrot>("Carrot");
@@ -24,10 +25,35 @@ bool Carrot::read_struct(QString file)
     return false;
 }
 
-bool Carrot::parse_leaf(QByteArray obj)
+bool Carrot::parse(QByteArray obj)
 {
-//    auto obj = QJsonDocument::fromJson(json.toUtf8()).object();
-    return leaf.parse(obj);
+    if(leaf.protocol == Cbor){
+        QCborParserError error;
+        QCborMap map;
+        QCborValue cbor = QCborValue::fromCbor(obj, &error);
+        map = cbor.toMap();
+        auto leaf_map = map.value(CBOR_LEAF).toMap();
+        // parse leaf
+        leaf.parse(leaf_map);
+        // parse body
+        auto body_map = map.value(CBOR_BODY).toMap();
+        return body_parse(body_map);
+    }else if (leaf.protocol == Json) {
+        auto map = QJsonDocument::fromJson(obj).object();
+        auto leaf_map = map.value(QString::number(CBOR_LEAF)).toObject();
+        auto body_map = map.value(QString::number(CBOR_BODY)).toObject();
+        return leaf.parse(leaf_map);
+
+    }
+    return false;
+}
+
+QByteArray Carrot::build()
+{
+    QJsonObject obj;
+    obj.insert(QString::number(CBOR_LEAF),leaf.build_json());
+    obj.insert(QString::number(CBOR_BODY),"");
+    return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }
 
 QByteArray Carrot::transfer_request()
@@ -38,4 +64,9 @@ QByteArray Carrot::transfer_request()
 QByteArray Carrot::data()
 {
     return QByteArray();
+}
+
+bool Carrot::body_parse(QCborMap map)
+{
+    return true;
 }

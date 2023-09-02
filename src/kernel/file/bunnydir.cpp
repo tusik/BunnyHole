@@ -9,20 +9,16 @@ bunny::Dir::Dir()
 
 }
 
-bunny::Dir bunny::Dir::walk_path(QString root_path, Dir *root_dir)
+bunny::Dir bunny::Dir::walk_path(QString root_path, int depth)
 {
     Dir dir;
-    if(root_dir == nullptr){
-        dir.root = QDir(root_path);
-        root_dir = &dir;
-    }
+
     QDirIterator it(QFileInfo(root_path).absoluteFilePath());
     dir.root = QDir(root_path);
-    root_dir->depth ++;
+
     // 128 is the max depth
-    if(root_dir->depth > 128){
-        root_dir->depth --;
-        root_dir->failed_load_file_tree = true;
+    if(depth > 128){
+
         qWarning("Max depth reached");
         return dir;
     }
@@ -34,21 +30,20 @@ bunny::Dir bunny::Dir::walk_path(QString root_path, Dir *root_dir)
             if(info.baseName() == "." || info.baseName() == ".." || info.baseName() == "" ){
 
             }else{
-                dir.sub_dirs.append(walk_path(root_path+"/"+info.baseName(),root_dir));
-                if (root_dir->failed_load_file_tree)
-                {
-                    return dir;
-                }
+                auto sub_dir = walk_path(root_path+"/"+info.baseName(),depth + 1);
+                dir.sub_dirs.append(sub_dir);
+                dir.total_size += sub_dir.total_size;
+
                 
             }
         }else if(info.isFile()){
             dir.files.append(File(info));
-            root_dir->total_size += info.size();
+            dir.total_size += info.size();
 
         }
 
     }
-    root_dir->depth --;
+
     return dir;
 }
 
@@ -56,6 +51,12 @@ QJsonObject bunny::Dir::to_json()
 {
     QJsonObject obj;
     QJsonArray file_arr;
+    // for human-readable chose json as protocol
+    // json is only accept string as key, so defined
+    // N: file name
+    // S: size
+    // F: file arrays
+    // D: directory arrays
     for(auto& i:files){
         QJsonObject file_obj;
         file_obj["N"] = i.file_name;
@@ -91,7 +92,7 @@ QCborMap bunny::Dir::to_cbor()
     return map;
 }
 
-void bunny::Dir::serialiseCborMap(QCborStreamWriter &stream, const QCborMap &map)
+void bunny::Dir::serialise_map(QCborStreamWriter &stream, const QCborMap &map)
 {
     map.toCborValue().toCbor(stream);
 }
@@ -115,6 +116,30 @@ bunny::Dir bunny::Dir::parse(const QCborMap &map)
     return dir;
 }
 
+bunny::Dir bunny::Dir::parse(const QJsonObject &map)
+{
+    Dir dir;
+    QJsonArray file_arr = map["F"].toArray();
+
+    for(const auto&& i : qAsConst(file_arr))
+    {
+        QJsonObject file_obj = i.toObject();
+        File file;
+        file.file_name = file_obj["N"].toString();
+        file.size = file_obj["S"].toInt();
+        dir.files.append(file);
+    }
+    QJsonArray dir_arr = map["D"].toArray();
+
+    for (const auto &&i : dir_arr)
+    {
+        QJsonObject dir_obj = i.toObject();
+        dir.sub_dirs.append(Dir::parse(dir_obj));
+    }
+
+    return dir;
+}
+
 bool bunny::Dir::set_to_model(QStandardItemModel *model, QStandardItem *parent)
 {
     QStandardItem* item = new QStandardItem(QIcon(),root.dirName());
@@ -122,12 +147,12 @@ bool bunny::Dir::set_to_model(QStandardItemModel *model, QStandardItem *parent)
         i.set_to_model(model,item);
     }
     for(auto& i:files){
-        item->appendRow({new QStandardItem(QIcon(),i.file_name),new QStandardItem(QIcon(),i.size_str())});
+        item->appendRow({new QStandardItem(QIcon(),i.file_name),new QStandardItem(QIcon(),bunny::File::size_str(i.size))});
     }
     if(parent==nullptr){
-        model->appendRow(item);
+        model->appendRow({item,new QStandardItem(QIcon(),bunny::File::size_str(total_size))});
     }else{
-        parent->appendRow(item);
+        parent->appendRow({item,new QStandardItem(QIcon(),bunny::File::size_str(total_size))});
     }
     return true;
 }
