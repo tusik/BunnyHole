@@ -45,8 +45,7 @@ public:
     QVector<File> files;
     QDir root;
     long long total_size =0;
-    bool failed_load_file_tree = false;
-    static Dir walk_path(QString root_path,Dir* root_dir = nullptr);
+    static Dir walk_path(QString root_path, int depth = 0);
     QJsonObject to_json();
     QCborMap to_cbor();
     int depth = 0;

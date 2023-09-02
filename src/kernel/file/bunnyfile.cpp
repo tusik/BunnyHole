@@ -21,16 +21,16 @@ bunny::File::File(QFileInfo &info)
     this->size = info.size();
 }
 
-QString bunny::File::size_str()
+QString bunny::File::size_str(long number)
 {
-    if(size < 1024){
-        return QString::number(size)+" Byte";
-    }else if(size < 1024*1024){
-        return QString::number(size/1024)+" KB";
-    }else if(size < 1024*1024*1024){
-        return QString::number(size/1024/1024)+" MB";
+    if(number < 1024){
+        return QString::number(number)+" Byte";
+    }else if(number < 1024*1024){
+        return QString::number(number/1024)+" KB";
+    }else if(number < 1024*1024*1024){
+        return QString::number(number/1024/1024)+" MB";
     }else{
-        return QString::number(size/1024/1024/1024)+" GB";
+        return QString::number(number/1024/1024/1024)+" GB";
     }
     
 }

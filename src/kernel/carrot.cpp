@@ -50,7 +50,10 @@ bool Carrot::parse(QByteArray obj)
 
 QByteArray Carrot::build()
 {
-    leaf.build_request();
+    QJsonObject obj;
+    obj.insert(QString::number(CBOR_LEAF),leaf.build_json());
+    obj.insert(QString::number(CBOR_BODY),"");
+    return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }
 
 QByteArray Carrot::transfer_request()

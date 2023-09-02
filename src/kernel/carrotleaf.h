@@ -24,6 +24,7 @@ struct CarrotLeaf
     CarrotOperatorCBorType type;
     bunny::Dir dir;
     QByteArray build_request();
+    QJsonObject build_json();
     /// \brief 计算校验值的方法
     static QString checksum(QByteArray& obj);
     bool parse(QCborMap& map);

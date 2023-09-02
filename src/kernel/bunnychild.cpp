@@ -14,7 +14,7 @@ bool BunnyChild::connect_mom(QUrl url)
         qDebug()<<"connected";
         ws_status = true;
         if(!transfered_buffer.isEmpty()){
-            socket->sendBinaryMessage(transfered_buffer);
+            socket->sendTextMessage(transfered_buffer);
             transfered_buffer.clear();
         }
     });
@@ -40,9 +40,9 @@ bool BunnyChild::send_file(QString path)
 void BunnyChild::send_transfer_request(Carrot c)
 {
     c.leaf.type = CarrotOperatorCBorType::SendRequest;
-    transfered_buffer = c.transfer_request();
+    transfered_buffer = c.build();
     if(ws_status){
-        socket->sendBinaryMessage(transfered_buffer);
+        socket->sendTextMessage(transfered_buffer);
         transfered_buffer.clear();
     }
 }
