@@ -25,7 +25,7 @@ QJsonObject CarrotLeaf::build_json()
     auto data = dir.to_json();
     obj.insert(QString::number(CarrotLeafCBorType::Data),data);
     obj.insert(QString::number(CarrotLeafCBorType::OperatorType),CarrotOperatorCBorType::SendRequest);
-    QByteArray data_ba =QJsonDocument(data).toJson(QJsonDocument::Compact);
+    QByteArray data_ba = QJsonDocument(data).toJson(QJsonDocument::Compact);
     obj.insert(QString::number(CarrotLeafCBorType::CheckSum),checksum(data_ba));
     return obj;
 }

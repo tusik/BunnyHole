@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QString>
 #include "file/bunnydir.h"
+#include "../ui/model/clientmodel.h"
 enum CarrotLeafCBorType{
     Data,
     CheckSum,
@@ -19,13 +20,13 @@ enum CarrotProtocol{
 
 struct CarrotLeaf
 {
-    QString from_host;
-    QString to_host;
+    QString from;
+    QString to;
     CarrotOperatorCBorType type;
     bunny::Dir dir;
     QByteArray build_request();
     QJsonObject build_json();
-    /// \brief 计算校验值的方法
+    /// \brief verify data with sha1
     static QString checksum(QByteArray& obj);
     bool parse(QCborMap& map);
     bool parse(QJsonObject& map);

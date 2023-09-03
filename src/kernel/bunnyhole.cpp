@@ -8,6 +8,11 @@ BunnyHole::BunnyHole(Configuration c, QObject *parent) :QObject(parent), config(
     udp_socket = new QUdpSocket(this);
 }
 
+BunnyHole::~BunnyHole()
+{
+    stop();
+}
+
 bool BunnyHole::client_online()
 {
     auto v4_list = get_local_hostinfo();
@@ -72,6 +77,7 @@ bool BunnyHole::start(QString interface_name)
 {
     /// activate BunnyHole UDP announce server
     auto res = udp_socket->bind(QHostAddress::AnyIPv4,group_address.port(),QUdpSocket::ShareAddress);
+    udp_socket->setSocketOption(QAbstractSocket::MulticastTtlOption,128);
     if(!res){
         return false;
     }
@@ -94,8 +100,26 @@ bool BunnyHole::start(QString interface_name)
     notify_timer.setInterval(3000);
 //    notify_timer.start();
     /// activate Bunny TCP transfer
-    bunny.start();
+    bunny.start(this);
     connect(&bunny,&Bunny::new_food_incoming,this,&BunnyHole::new_transfer_request);
+    return true;
+}
+
+bool BunnyHole::stop()
+{
+    auto protocol = BunnyHoleProtocolBuilder::builder()
+                        .host(local_host.toString())
+                        .offline()
+                        .user_agent()
+                        .hostname(QHostInfo::localHostName())
+                        .port(bunny.port)
+                        .build();
+    QByteArray data = protocol.data();
+
+    auto res = udp_socket->writeDatagram(data,QHostAddress(group_address.host()),group_address.port());
+    if (res != data.length()) {
+        return false;
+    }
     return true;
 }
 
@@ -129,6 +153,7 @@ void BunnyHole::message_process(BunnyHoleProtocol& bhp)
 				.alive()
 				.user_agent()
                 .hostname(QHostInfo::localHostName())
+                .port(bunny.port)
 				.build();
 		QByteArray data = protocol.data();
         
@@ -136,10 +161,13 @@ void BunnyHole::message_process(BunnyHoleProtocol& bhp)
         if (res != data.length()) {
 			return;
 		}
+        online_clients.insert(bhp.host,bhp.to_client_model());
         emit new_client_online(bhp);
     }else if (bhp.current_operate == BunnyHoleProtocol::Operate::BYEBYE) {
+        online_clients.remove(bhp.host);
         emit clinet_offline(bhp);
     }else if (bhp.current_operate == BunnyHoleProtocol::Operate::IMHERE) {
+        online_clients.insert(bhp.host,bhp.to_client_model());
         emit new_client_online(bhp);
     }else if (bhp.current_operate == BunnyHoleProtocol::Operate::UNKNONW) {
 

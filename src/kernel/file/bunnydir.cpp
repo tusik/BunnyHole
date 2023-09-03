@@ -50,13 +50,16 @@ bunny::Dir bunny::Dir::walk_path(QString root_path, int depth)
 QJsonObject bunny::Dir::to_json()
 {
     QJsonObject obj;
-    QJsonArray file_arr;
+
     // for human-readable chose json as protocol
     // json is only accept string as key, so defined
+    // R: root directory name
     // N: file name
     // S: size
     // F: file arrays
     // D: directory arrays
+    obj.insert("R",root.dirName());
+    QJsonArray file_arr;
     for(auto& i:files){
         QJsonObject file_obj;
         file_obj["N"] = i.file_name;
@@ -107,11 +110,13 @@ bunny::Dir bunny::Dir::parse(const QCborMap &map)
         file.file_name = file_obj.value(File::CBOR_TYPE::FileName).toString();
         file.size = file_obj.value(File::CBOR_TYPE::Size).toInteger();
         dir.files.append(file);
+        dir.total_size += file.size;
     }
     QCborArray dir_arr = map.value(Dir::CBOR_TYPE::DIR).toArray();
     for(auto i:dir_arr){
         QCborMap dir_obj = i.toMap();
         dir.sub_dirs.append(Dir::parse(dir_obj));
+        dir.total_size += dir.sub_dirs.back().total_size;
     }
     return dir;
 }
@@ -119,6 +124,7 @@ bunny::Dir bunny::Dir::parse(const QCborMap &map)
 bunny::Dir bunny::Dir::parse(const QJsonObject &map)
 {
     Dir dir;
+    dir.root = QDir(map["R"].toString());
     QJsonArray file_arr = map["F"].toArray();
 
     for(const auto&& i : qAsConst(file_arr))
@@ -128,6 +134,7 @@ bunny::Dir bunny::Dir::parse(const QJsonObject &map)
         file.file_name = file_obj["N"].toString();
         file.size = file_obj["S"].toInt();
         dir.files.append(file);
+        dir.total_size += file.size;
     }
     QJsonArray dir_arr = map["D"].toArray();
 
@@ -135,6 +142,7 @@ bunny::Dir bunny::Dir::parse(const QJsonObject &map)
     {
         QJsonObject dir_obj = i.toObject();
         dir.sub_dirs.append(Dir::parse(dir_obj));
+        dir.total_size += dir.sub_dirs.back().total_size;
     }
 
     return dir;

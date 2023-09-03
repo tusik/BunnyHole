@@ -34,6 +34,12 @@ bool TransferDialog::model_from_dir(bunny::Dir &dir)
     return true;
 }
 
+bool TransferDialog::set_source(QString ip)
+{
+    ui->source_label->setText(ip);
+    return true;
+}
+
 void TransferDialog::on_buttonBox_accepted()
 {
 

@@ -32,6 +32,12 @@ BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::alive()
     return *this;
 }
 
+BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::offline()
+{
+    protocol.current_operate = BunnyHoleProtocol::Operate::BYEBYE;
+    return *this;
+}
+
 BunnyHoleProtocolBuilder &BunnyHoleProtocolBuilder::host(QString host)
 {
     protocol.host = host;
