@@ -20,8 +20,9 @@ class BunnyHole : public QObject
     Q_OBJECT
 public:
     explicit BunnyHole(Configuration c, QObject *parent = nullptr);
+    ~BunnyHole();
     QUdpSocket* udp_socket = nullptr;
-    QUrl group_address = QUrl::fromUserInput("239.255.255.251:11223");
+    QUrl group_address = QUrl::fromUserInput("239.255.255.250:1901");
     QNetworkInterface local_interface;
     QHostAddress local_host;
     QList<QNetworkInterface> get_local_hostinfo();
@@ -33,7 +34,7 @@ public:
     QHash<QString,ClientModel> online_clients;
 public slots:
     bool start(QString interface_name);
-
+    bool stop();
     // udp
     bool client_online();
     bool client_alive();

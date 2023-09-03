@@ -21,6 +21,7 @@ public:
     static BunnyHoleProtocolBuilder builder();
     BunnyHoleProtocolBuilder& search();
     BunnyHoleProtocolBuilder& alive();
+    BunnyHoleProtocolBuilder& offline();
     BunnyHoleProtocolBuilder& host(QString host);
     BunnyHoleProtocolBuilder& user_agent();
     BunnyHoleProtocolBuilder& id(QString _id);

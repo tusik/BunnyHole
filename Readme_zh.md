@@ -1,5 +1,5 @@
 
-# BunnyHole
+# 兔子洞局域网快传 
 [![Ubuntu](https://github.com/tusik/BunnyHole/actions/workflows/cmake-ubuntu-platform.yml/badge.svg)](https://github.com/tusik/BunnyHole/actions/workflows/cmake-ubuntu-platform.yml)
 [![Windows](https://github.com/tusik/BunnyHole/actions/workflows/cmake-windows-platform.yml/badge.svg)](https://github.com/tusik/BunnyHole/actions/workflows/cmake-windows-platform.yml)
 [![MacOS](https://github.com/tusik/BunnyHole/actions/workflows/cmake-mac-platform.yml/badge.svg)](https://github.com/tusik/BunnyHole/actions/workflows/cmake-mac-platform.yml)
@@ -9,11 +9,11 @@
 <div align="center">
 <img src="BunnyHole.png"  width="128">
 
-A tool transfer file and folder quick and easy to use.
+局域网内快速方便传输文件和目录
 </div>
 
 ## Road map
 
-- [ ] UDP network discovery - 🐣WIP
-- [ ] File and folder transfer with WebSocket - 🐣WIP
-- [ ] Message transfer
+- [ ] UDP内网发现组件- 🐣WIP
+- [ ] 文件和文件夹传输 - 🐣WIP
+- [ ] 文本消息传输

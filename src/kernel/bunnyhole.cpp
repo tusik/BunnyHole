@@ -8,6 +8,11 @@ BunnyHole::BunnyHole(Configuration c, QObject *parent) :QObject(parent), config(
     udp_socket = new QUdpSocket(this);
 }
 
+BunnyHole::~BunnyHole()
+{
+    stop();
+}
+
 bool BunnyHole::client_online()
 {
     auto v4_list = get_local_hostinfo();
@@ -100,6 +105,24 @@ bool BunnyHole::start(QString interface_name)
     return true;
 }
 
+bool BunnyHole::stop()
+{
+    auto protocol = BunnyHoleProtocolBuilder::builder()
+                        .host(local_host.toString())
+                        .offline()
+                        .user_agent()
+                        .hostname(QHostInfo::localHostName())
+                        .port(bunny.port)
+                        .build();
+    QByteArray data = protocol.data();
+
+    auto res = udp_socket->writeDatagram(data,QHostAddress(group_address.host()),group_address.port());
+    if (res != data.length()) {
+        return false;
+    }
+    return true;
+}
+
 void BunnyHole::read_message()
 {
     while (udp_socket->hasPendingDatagrams()) {
@@ -141,6 +164,7 @@ void BunnyHole::message_process(BunnyHoleProtocol& bhp)
         online_clients.insert(bhp.host,bhp.to_client_model());
         emit new_client_online(bhp);
     }else if (bhp.current_operate == BunnyHoleProtocol::Operate::BYEBYE) {
+        online_clients.remove(bhp.host);
         emit clinet_offline(bhp);
     }else if (bhp.current_operate == BunnyHoleProtocol::Operate::IMHERE) {
         online_clients.insert(bhp.host,bhp.to_client_model());
