@@ -19,6 +19,7 @@ public:
     ~TransferDialog();
     bool set_model(QStandardItemModel* m);
     bool model_from_dir(bunny::Dir& dir);
+    bool set_source(QString ip);
     bool is_recive = false;
 signals:
     void accpted();

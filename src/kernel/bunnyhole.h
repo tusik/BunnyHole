@@ -29,6 +29,8 @@ public:
     const Configuration config;
 
     Bunny bunny;
+
+    QHash<QString,ClientModel> online_clients;
 public slots:
     bool start(QString interface_name);
 

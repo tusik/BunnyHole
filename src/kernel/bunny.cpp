@@ -1,13 +1,15 @@
 ﻿#include "bunny.h"
 #include "carrot.h"
+#include "../kernel/bunnyhole.h"
 Bunny::Bunny(QObject *parent)
     : QObject{parent}
 {
 
 }
 
-bool Bunny::start(int port)
+bool Bunny::start(BunnyHole *home, int port)
 {
+    this->home = home;
     if(server != nullptr){
         server->close();
         server->deleteLater();
@@ -24,7 +26,7 @@ bool Bunny::start(int port)
 
 bool Bunny::send_message(Carrot c)
 {
-    QWebSocket* child_socket = children[c.leaf.to_host];
+    QWebSocket* child_socket = children[c.leaf.to];
     return true;
 }
 
@@ -32,7 +34,12 @@ void Bunny::new_child()
 {
     QWebSocket* child_socket = server->nextPendingConnection();
     auto host = child_socket->peerAddress();
-    qDebug()<<"new child" << host;
+    if(!home->online_clients.contains(host.toString())){
+        qDebug()<<"unknown client tring to connect:" << host;
+        child_socket->close();
+        return;
+    }
+    qDebug()<<"new client connect:" << host;
     children.insert(host.toString(), child_socket);
     connect(child_socket,&QWebSocket::textMessageReceived,this,&Bunny::process_message);
     connect(child_socket,&QWebSocket::binaryMessageReceived,this,&Bunny::process_binary_message);
@@ -46,6 +53,8 @@ void Bunny::process_message(QString msg)
 
         Carrot carrot;
         if(carrot.parse(msg.toUtf8())){
+            carrot.leaf.from = child_socket->peerAddress().toString();
+            qDebug()<<child_socket->peerName();
             switch(carrot.leaf.type){
             case CarrotOperatorCBorType::SendRequest:
                 emit new_food_incoming(carrot);
@@ -57,7 +66,6 @@ void Bunny::process_message(QString msg)
 
     }
 
-
 }
 
 void Bunny::process_binary_message(QByteArray msg)
@@ -68,6 +76,7 @@ void Bunny::process_binary_message(QByteArray msg)
 
         Carrot carrot;
         if(carrot.parse(msg)){
+            carrot.leaf.from = child_socket->peerAddress().toString();
             switch(carrot.leaf.type){
             case CarrotOperatorCBorType::SendRequest:
                 emit new_food_incoming(carrot);

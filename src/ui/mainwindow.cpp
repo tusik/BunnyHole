@@ -60,13 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
         // FOR TEST ONLY
         //connect(item, &ListItem::request_transfer, this,&MainWindow::recive_transfer_request);
     }
-    TransferDialog* dia = new TransferDialog();
-    dia->show();
-    QStandardItemModel* model = new QStandardItemModel(dia);
-    model->setHorizontalHeaderLabels(QStringList()<<QStringLiteral("Size")<<QStringLiteral("File name"));
-    QStandardItem* itemProject = new QStandardItem(QIcon(),QStringLiteral("项目"));
-    model->appendRow(itemProject);
-    dia->set_model(model);
 
 }
 
@@ -155,6 +148,7 @@ void MainWindow::send_transfer_request(Carrot c)
 void MainWindow::recive_transfer_request(Carrot c)
 {
     TransferDialog* dia = new TransferDialog();
+    dia->set_source(c.leaf.from);
     dia->model_from_dir(c.leaf.dir);
     int rec = dia->exec();
     if(rec == QDialog::Accepted){
@@ -167,8 +161,8 @@ void MainWindow::send_accpet_transfer_request(QString host)
 {
     Carrot c;
     c.leaf.type = CarrotOperatorCBorType::AcceptFileTransfer;
-    c.leaf.from_host = "";
-    c.leaf.to_host = host;
+    c.leaf.from = "";
+    c.leaf.to = host;
     hole->bunny.send_message(c);
 }
 
